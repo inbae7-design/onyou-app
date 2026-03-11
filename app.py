@@ -18,7 +18,7 @@ st.divider()
 tab_todo, tab_schedule, tab_account = st.tabs(["✅ 오늘 할 일", "🗓️ 주간 시간표", "💰 온유 가계부"])
 
 # ==========================================
-# 1. 오늘 할 일 (체크리스트 유지)
+# 1. 오늘 할 일 (체크리스트)
 # ==========================================
 with tab_todo:
     st.subheader("오늘의 할 일과 일정")
@@ -40,7 +40,7 @@ with tab_todo:
 
 
 # ==========================================
-# 2. 주간 시간표 (학교/학원 하위 메뉴)
+# 2. 주간 시간표 (학교/학원 맞춤형 뼈대 분리)
 # ==========================================
 with tab_schedule:
     st.subheader("월~일 시간표 관리")
@@ -48,9 +48,9 @@ with tab_schedule:
     # 하위 탭 생성
     sub_school, sub_academy = st.tabs(["🏫 학교 시간표", "🎒 학원 시간표"])
     
-    # 시간표 기본 뼈대 (월~일)
-    weekly_template = pd.DataFrame({
-        "시간/교시": ["1교시", "2교시", "3교시", "4교시", "5교시", "6교시", "방과후"],
+    # [학교용 뼈대] 기준: 교시
+    school_template = pd.DataFrame({
+        "교시": ["1교시", "2교시", "3교시", "4교시", "5교시", "6교시", "방과후"],
         "월": ["", "", "", "", "", "", ""],
         "화": ["", "", "", "", "", "", ""],
         "수": ["", "", "", "", "", "", ""],
@@ -60,21 +60,33 @@ with tab_schedule:
         "일": ["", "", "", "", "", "", ""]
     })
 
+    # [학원용 뼈대] 기준: 학원명
+    academy_template = pd.DataFrame({
+        "학원명": ["피아노 학원", "영어 학원", "태권도", "", ""],
+        "월": ["", "", "", "", ""],
+        "화": ["", "", "", "", ""],
+        "수": ["", "", "", "", ""],
+        "목": ["", "", "", "", ""],
+        "금": ["", "", "", "", ""],
+        "토": ["", "", "", "", ""],
+        "일": ["", "", "", "", ""]
+    })
+
     with sub_school:
-        st.markdown("**표 안의 빈칸을 터치해서 과목을 입력하세요.**")
-        st.data_editor(weekly_template.copy(), num_rows="dynamic", use_container_width=True, key="school_table")
+        st.markdown("**💡 빈칸을 터치해서 과목을 입력하세요.**")
+        st.data_editor(school_template, num_rows="dynamic", use_container_width=True, key="school_table")
         if st.button("학교 시간표 저장", key="btn_school"):
             st.success("학교 시간표가 저장되었습니다!")
 
     with sub_academy:
-        st.markdown("**표 안의 빈칸을 터치해서 학원 일정을 입력하세요.**")
-        st.data_editor(weekly_template.copy(), num_rows="dynamic", use_container_width=True, key="academy_table")
+        st.markdown("**💡 학원명을 적고, 해당 요일 칸에 시간(예: 14:00)을 적어주세요.**")
+        st.data_editor(academy_template, num_rows="dynamic", use_container_width=True, key="academy_table")
         if st.button("학원 시간표 저장", key="btn_academy"):
             st.success("학원 시간표가 저장되었습니다!")
 
 
 # ==========================================
-# 3. 온유 가계부 (학원비/생활비/용돈 하위 메뉴)
+# 3. 온유 가계부 (학원비/생활비/용돈)
 # ==========================================
 with tab_account:
     st.subheader("우리가족 지출 관리")
