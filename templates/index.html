@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>온유 스케줄 매니저</title>
+    <style>
+        /* 스마트폰 앱 느낌의 귀여운 배경과 폰트 디자인 */
+        body { 
+            font-family: 'Malgun Gothic', sans-serif; 
+            background-color: #FFF0F5; /* 연한 핑크 배경 */
+            margin: 0; 
+            padding: 15px; 
+            color: #333;
+        }
+        .header { 
+            text-align: center; 
+            padding: 20px 0; 
+        }
+        .header h1 { margin: 0; color: #FF6B6B; font-size: 1.8em; }
+        .header p { color: #888; font-size: 0.9em; margin-top: 5px; }
+        
+        /* 둥근 모서리의 하얀색 카드 디자인 */
+        .card { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        .card-title { 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            color: #555;
+            border-bottom: 2px solid #FFEDED;
+            padding-bottom: 10px;
+        }
+        
+        /* 예쁜 버튼 디자인 */
+        .btn { 
+            background-color: #FF8E8B; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            width: 100%; 
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer; 
+            box-shadow: 0 2px 5px rgba(255, 142, 139, 0.4);
+        }
+        .btn:active { background-color: #FF6B6B; }
+
+        /* 간단한 리스트 디자인 */
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { padding: 10px 0; border-bottom: 1px dashed #EEE; }
+        li:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>👧 온유 스케줄 매니저</h1>
+        <p>오늘도 즐거운 하루 보내자! 우리 쭈 화이팅! ✨</p>
+    </div>
+
+    <div class="card">
+        <div class="card-title">✅ 오늘의 할 일</div>
+        <ul>
+            <li><input type="checkbox"> 14:00 피아노 학원</li>
+            <li><input type="checkbox"> 16:00 영어 학원</li>
+            <li><input type="checkbox"> 18:00 숙제하기</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <div class="card-title">🗓️ 주간 시간표 관리</div>
+        <button class="btn">시간표 확인하기</button>
+    </div>
+
+    <div class="card">
+        <div class="card-title">💰 온유 가계부</div>
+        <button class="btn" style="background-color: #82C8A0;">지출 내역 기록하기</button>
+    </div>
+
+</body>
+</html>
