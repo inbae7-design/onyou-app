@@ -211,7 +211,7 @@
         let academyIds = [1, 2, 3]; 
 
         // ★🚨 여기에 아빠가 발급받은 ImgBB API 키를 꼭 다시 넣어주세요! 🚨★
-        const IMGBB_API_KEY = "여기에_복사한_키를_붙여넣으세요";
+        const IMGBB_API_KEY = "454cdf7aa69d7ebc84e605bb46f67142";
 
         function changePage(pageId, element) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
@@ -374,7 +374,7 @@
             formData.append('image', file);
 
             try {
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${454cdf7aa69d7ebc84e605bb46f67142}`, { method: 'POST', body: formData });
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
                 const data = await res.json();
                 
                 if(data.success) {
