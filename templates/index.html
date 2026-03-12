@@ -4,56 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>온유의 즐거운 나날~</title>
-
+    
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="온유스케줄">
-    <meta name="theme-color" content="#FFF0F5">
-    
+    <meta name="theme-color" content="#FFB6C1">
     <link rel="manifest" href="/static/manifest.json">
 
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+
     <style>
-    /* (여기에 기존에 있던 전체 <style> 내용을 그대로 두시면 됩니다!) */
-    <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #FFF0F5; margin: 0; padding: 0; color: #333; padding-bottom: 70px; }
-        .header { text-align: center; padding: 25px 15px 15px; background: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        .header h1 { margin: 0; color: #FF6B6B; font-size: 1.6em; }
-        .header p { color: #777; font-size: 0.9em; margin-top: 8px; font-weight: bold; }
+        /* 전체 배경 및 폰트 설정 (아이스럽게!) */
+        body { 
+            font-family: 'Jua', sans-serif; 
+            background-color: #FFF5F7; /* 아주 연한 베이비 핑크 */
+            margin: 0; padding: 0; color: #555; 
+            padding-bottom: 120px; /* ★잘림 방지: 하단 여백을 아주 넉넉하게!★ */
+        }
         
-        #sync-toast { position: fixed; top: 15px; right: 15px; background: #82C8A0; color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.85em; font-weight: bold; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1000; }
-        .weather-scroll-container { display: flex; overflow-x: auto; gap: 10px; padding: 10px 5px; margin-top: 15px; }
+        input, textarea, button { font-family: 'Jua', sans-serif; } /* 입력창도 귀여운 폰트로 */
+
+        /* 상단 헤더 (둥근 구름 느낌) */
+        .header { 
+            text-align: center; padding: 35px 15px 25px; 
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFD1DC 100%); /* 화사한 핑크 그라데이션 */
+            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; 
+            box-shadow: 0 5px 15px rgba(255,182,193,0.4); margin-bottom: 20px;
+        }
+        .header h1 { margin: 0; color: white; font-size: 2em; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .header p { color: white; font-size: 1.1em; margin-top: 8px; opacity: 0.9; }
+        
+        #sync-toast { position: fixed; top: 15px; right: 15px; background: #82C8A0; color: white; padding: 10px 20px; border-radius: 25px; font-size: 1.1em; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1000; }
+        
+        /* 날씨 스크롤 (홈 화면 전용) */
+        .weather-scroll-container { display: flex; overflow-x: auto; gap: 10px; padding: 5px; margin-bottom: 20px; }
         .weather-scroll-container::-webkit-scrollbar { display: none; } 
-        .weather-item { background: #F8F9FA; min-width: 60px; padding: 12px 10px; border-radius: 15px; text-align: center; border: 1px solid #EEE; flex-shrink: 0; }
-        .w-day { font-size: 0.8em; font-weight: bold; color: #555; }
-        .w-icon { font-size: 1.8em; margin: 5px 0; }
-        .w-temp { font-size: 0.75em; font-weight: bold; }
+        .weather-item { background: white; min-width: 65px; padding: 12px 10px; border-radius: 20px; text-align: center; border: 2px solid #FFE4E1; flex-shrink: 0; box-shadow: 0 4px 10px rgba(255,182,193,0.2); }
+        .w-day { font-size: 1em; color: #FF7B9C; }
+        .w-icon { font-size: 2em; margin: 5px 0; }
+        .w-temp { font-size: 0.9em; color: #777; }
+
+        /* 페이지 카드 디자인 (더 동글동글하게) */
         .page { display: none; padding: 0 15px; } 
-        .page.active { display: block; }
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .card-title { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; color: #444; border-bottom: 2px solid #FFEDED; padding-bottom: 10px; }
+        .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: white; border-radius: 25px; padding: 25px 20px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(255,182,193,0.15); border: 3px solid #FFF0F5; }
+        .card-title { font-size: 1.4em; margin-bottom: 15px; color: #FF7B9C; border-bottom: 2px dashed #FFD1DC; padding-bottom: 10px; }
+
         .todo-list { list-style: none; padding: 0; margin: 0; }
-        .todo-list li { padding: 12px 0; border-bottom: 1px dashed #EEE; display: flex; align-items: center; }
+        .todo-list li { padding: 15px 0; border-bottom: 2px dotted #FFE4E1; display: flex; align-items: center; font-size: 1.2em; }
         .todo-list li:last-child { border-bottom: none; }
-        .todo-list input[type="checkbox"] { margin-right: 10px; width: 18px; height: 18px; accent-color: #FF6B6B; }
-        .memo-input { width: 100%; padding: 12px; border: 1px solid #DDD; border-radius: 10px; box-sizing: border-box; font-size: 0.9em; margin-bottom: 10px; font-family: inherit; }
-        textarea.memo-input { resize: none; height: 80px; }
-        .btn { background-color: #FF8E8B; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 2px 5px rgba(255, 142, 139, 0.4);}
-        .btn-add { background-color: #82C8A0; margin-top: 10px; box-shadow: 0 2px 5px rgba(130, 200, 160, 0.4); }
-        .btn-photo { background-color: #4A90E2; box-shadow: 0 2px 5px rgba(74, 144, 226, 0.4); margin-bottom: 15px; }
+        .todo-list input[type="checkbox"] { margin-right: 12px; width: 22px; height: 22px; accent-color: #FF7B9C; }
+
+        .memo-input { width: 100%; padding: 15px; border: 2px solid #FFE4E1; border-radius: 15px; box-sizing: border-box; font-size: 1.1em; margin-bottom: 10px; outline: none; transition: border 0.3s; }
+        .memo-input:focus { border: 2px solid #FFB6C1; }
+        textarea.memo-input { resize: none; height: 100px; }
         
-        .table-container { overflow-x: auto; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; min-width: 350px; font-size: 0.85em; text-align: center; }
-        th { background-color: #FFEDED; padding: 10px 3px; color: #555; white-space: nowrap; }
-        td { border: 1px solid #EEE; padding: 5px 2px; }
-        input.cell-input { width: 95%; border: none; text-align: center; background: transparent; outline: none; font-size: 1em; }
-        #school-table th { background-color: #E3F2FD; }
-        #academy-table th { background-color: #FFF3E0; }
-        .btn-delete { background: none; border: none; color: #FF6B6B; font-size: 1.2em; cursor: pointer; padding: 0; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top-left-radius: 15px; border-top-right-radius: 15px; }
-        .nav-item { text-align: center; color: #CCC; font-size: 0.8em; font-weight: bold; padding: 5px 15px; flex-grow: 1; cursor: pointer; }
-        .nav-item.active { color: #FF6B6B; }
-        .nav-icon { font-size: 1.5em; display: block; margin-bottom: 3px; }
+        .btn { color: white; border: none; padding: 15px; border-radius: 15px; font-size: 1.2em; width: 100%; cursor: pointer; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.97); }
+        .btn-add { background: linear-gradient(135deg, #82C8A0 0%, #A2D8B8 100%); box-shadow: 0 4px 10px rgba(130,200,160,0.4); margin-top: 10px; }
+        .btn-photo { background: linear-gradient(135deg, #74BDF8 0%, #A2D4FA 100%); box-shadow: 0 4px 10px rgba(116,189,248,0.4); margin-bottom: 15px; }
+
+        .table-container { overflow-x: auto; margin-bottom: 15px; border-radius: 15px; border: 2px solid #FFE4E1; }
+        table { width: 100%; border-collapse: collapse; min-width: 350px; text-align: center; font-size: 1.1em; }
+        th { background-color: #FFF0F5; padding: 12px 5px; color: #FF7B9C; white-space: nowrap; font-weight: normal; border-bottom: 2px solid #FFE4E1; }
+        td { border-bottom: 1px solid #FFF0F5; border-right: 1px solid #FFF0F5; padding: 8px 2px; }
+        td:last-child { border-right: none; }
+        input.cell-input { width: 95%; border: none; text-align: center; background: transparent; outline: none; font-size: 1.1em; color: #555; }
+        
+        #school-table th { background-color: #EBF5FF; color: #4A90E2; border-bottom: 2px solid #D6E9FF; }
+        #school-table { border: 2px solid #D6E9FF; }
+        #academy-table th { background-color: #FFF8E1; color: #FFA000; border-bottom: 2px solid #FFECB3; }
+        #academy-table { border: 2px solid #FFECB3; }
+        
+        .btn-delete { background: none; border: none; color: #FF6B6B; font-size: 1.4em; cursor: pointer; padding: 0; }
+
+        /* 하단 4칸 메뉴바 (아이콘 더 크게) */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -5px 20px rgba(255,182,193,0.3); border-top-left-radius: 30px; border-top-right-radius: 30px; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { text-align: center; color: #CCC; font-size: 1em; padding: 8px 10px; flex-grow: 1; cursor: pointer; transition: color 0.3s; }
+        .nav-item.active { color: #FF7B9C; }
+        .nav-icon { font-size: 1.8em; display: block; margin-bottom: 5px; transition: transform 0.3s; }
+        .nav-item.active .nav-icon { transform: translateY(-3px) scale(1.1); }
     </style>
 </head>
 <body>
@@ -61,32 +94,27 @@
     <div id="sync-toast">☁️ 연결 중...</div>
 
     <div class="header">
-        <h1>👧 온유의 즐거운 나날~</h1>
-        <p>오늘도 즐거운 하루 보내자! 우리 온유 화이팅! ✨</p>
-        <div class="weather-scroll-container" id="weather-scroll">
-            <div style="font-size:0.8em; color:#888; margin-top:10px;">🌤️ 날씨 요정님을 부르는 중...</div>
-        </div>
+        <h1>👧 온유의 즐거운 나날</h1>
+        <p>오늘도 행복한 하루 보내자! 화이팅! ✨</p>
     </div>
 
     <div id="page-home" class="page active">
+        <div class="weather-scroll-container" id="weather-scroll">
+            <div style="font-size:1.1em; color:#FF7B9C; padding: 10px;">🌤️ 날씨 요정님을 부르는 중...</div>
+        </div>
+
         <div class="card">
             <div class="card-title">✅ 오늘의 스케줄!</div>
             <ul class="todo-list" id="today-schedule-list">
-                <li style="color:#888; font-size:0.9em;">시간표를 불러오는 중입니다...</li>
+                <li style="color:#888;">시간표를 불러오는 중입니다...</li>
             </ul>
-        </div>
-        <div class="card">
-            <div class="card-title">📸 온유의 일기장</div>
-            <input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="uploadPhoto()">
-            <button class="btn btn-photo" onclick="document.getElementById('photo-upload').click()">📷 오늘의 사진 올리기</button>
-            <img id="daily-photo-img" style="width:100%; border-radius:10px; margin-bottom:15px; display:none; border: 1px solid #EEE;">
-            <input type="text" class="memo-input" id="daily-memo" placeholder="사진과 함께 오늘 있었던 재밌는 일을 적어봐요!" oninput="triggerSave()">
         </div>
     </div>
 
     <div id="page-school" class="page">
         <div class="card">
             <div class="card-title">🏫 학교 시간표 (월~금)</div>
+            <p style="font-size: 0.9em; color: #888; margin-top:-5px;">* 빈칸을 터치해서 과목을 적어주세요.</p>
             <div class="table-container">
                 <table id="school-table">
                     <tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr>
@@ -98,14 +126,15 @@
                     <tr><td>6</td><td><input class="cell-input" oninput="triggerSave()" data-id="s-6-1"></td><td><input class="cell-input" oninput="triggerSave()" data-id="s-6-2"></td><td><input class="cell-input" oninput="triggerSave()" data-id="s-6-3"></td><td><input class="cell-input" oninput="triggerSave()" data-id="s-6-4"></td><td><input class="cell-input" oninput="triggerSave()" data-id="s-6-5"></td></tr>
                 </table>
             </div>
-            <div class="card-title" style="margin-top: 20px;">🎒 기타 메모사항 (준비물 등)</div>
-            <textarea class="memo-input" id="school-memo" placeholder="수업에 필요한 준비물이나 알림장을 적어두세요!" oninput="triggerSave()"></textarea>
+            <div class="card-title" style="margin-top: 25px;">🎒 알림장 (준비물)</div>
+            <textarea class="memo-input" id="school-memo" placeholder="수업에 필요한 준비물이나 알림장을 꼼꼼히 적어봐요!" oninput="triggerSave()"></textarea>
         </div>
     </div>
 
     <div id="page-academy" class="page">
         <div class="card">
             <div class="card-title">🎒 학원 시간표 (월~일)</div>
+            <p style="font-size: 0.9em; color: #888; margin-top:-5px;">* 요일별 가는 시간을 14:00 처럼 적어주세요!</p>
             <div class="table-container">
                 <table id="academy-table">
                     <thead>
@@ -119,13 +148,29 @@
         </div>
     </div>
 
+    <div id="page-diary" class="page">
+        <div class="card">
+            <div class="card-title">📸 온유의 일기장</div>
+            <p style="font-size: 1em; color: #888; margin-top:-5px;">오늘 하루 찰칵! 폰으로 찍어서 올려봐요.</p>
+            
+            <input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="uploadPhoto()">
+            <button class="btn btn-photo" onclick="document.getElementById('photo-upload').click()">📷 예쁜 사진 올리기</button>
+            <img id="daily-photo-img" style="width:100%; border-radius:15px; margin-bottom:15px; display:none; border: 3px solid #FFE4E1;">
+            
+            <div class="card-title" style="margin-top: 25px;">📝 오늘 있었던 일</div>
+            <textarea class="memo-input" id="daily-memo" placeholder="오늘 친구들이랑 무슨 재밌는 놀이를 했나요? 여기에 쏙쏙 적어봐요!" style="height: 150px;" oninput="triggerSave()"></textarea>
+        </div>
+    </div>
+
     <div class="bottom-nav">
         <div class="nav-item active" onclick="changePage('page-home', this)"><span class="nav-icon">🏠</span>홈</div>
         <div class="nav-item" onclick="changePage('page-school', this)"><span class="nav-icon">🏫</span>학교</div>
         <div class="nav-item" onclick="changePage('page-academy', this)"><span class="nav-icon">🎒</span>학원</div>
+        <div class="nav-item" onclick="changePage('page-diary', this)"><span class="nav-icon">📔</span>일기장</div>
     </div>
 
     <script>
+        // 화면 전환 로직
         function changePage(pageId, element) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -133,6 +178,7 @@
             element.classList.add('active');
         }
 
+        // 날씨 API
         async function fetchWeather() {
             try {
                 const url = 'https://api.open-meteo.com/v1/forecast?latitude=37.00&longitude=127.27&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul';
@@ -149,7 +195,7 @@
                     const code = data.daily.weathercode[i];
                     let emoji = '🌤️';
                     if(code === 0) emoji = '☀️'; else if(code <= 3) emoji = '☁️'; else if(code <= 48) emoji = '🌫️'; else if(code <= 67) emoji = '🌧️'; else if(code <= 77) emoji = '❄️'; else emoji = '⛈️';
-                    html += `<div class="weather-item"><div class="w-day">${dayStr}</div><div class="w-icon">${emoji}</div><div class="w-temp"><span style="color:#4A90E2">${minT}°</span>/<span style="color:#E02020">${maxT}°</span></div></div>`;
+                    html += `<div class="weather-item"><div class="w-day">${dayStr}</div><div class="w-icon">${emoji}</div><div class="w-temp"><span style="color:#74BDF8">${minT}°</span> <span style="color:#FF6B6B">${maxT}°</span></div></div>`;
                 }
                 document.getElementById('weather-scroll').innerHTML = html;
             } catch (error) {}
@@ -158,6 +204,7 @@
         let academyIds = [1, 2, 3]; 
         let currentData = {}; 
 
+        // 학원 표 그리기
         function renderAcademyTable() {
             const tbody = document.getElementById('academy-tbody');
             const currentInputs = tbody.querySelectorAll('input.cell-input');
@@ -197,24 +244,23 @@
             }
         }
 
-        // --- 🚀 업그레이드된 ImgBB 사진 직행 로직 ---
+        // --- 🚀 ImgBB 사진 직행 ---
         async function uploadPhoto() {
             const fileInput = document.getElementById('photo-upload');
             const file = fileInput.files[0];
             if(!file) return;
 
             const toast = document.getElementById('sync-toast');
-            toast.innerText = '📷 사진 서버로 슝! 날아가는 중...';
+            toast.innerText = '📷 마법의 사진첩으로 슝! 날아가는 중...';
             toast.style.display = 'block';
 
             const formData = new FormData();
             formData.append('image', file);
 
-            // ★🚨여기에 발급받은 ImgBB API 키를 꼭 넣으세요!🚨★
+            // ★🚨여기에 발급받은 ImgBB API 키를 꼭 다시 넣어주세요!🚨★
             const IMGBB_API_KEY = "454cdf7aa69d7ebc84e605bb46f67142";
 
             try {
-                // 파이썬 서버를 안 거치고 초고속 이미지 서버로 바로 쏩니다!
                 const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
                     method: 'POST',
                     body: formData
@@ -222,19 +268,18 @@
                 const data = await res.json();
                 
                 if(data.success) {
-                    const imgUrl = data.data.url; // 성공적으로 올라간 사진의 인터넷 주소
+                    const imgUrl = data.data.url; 
                     document.getElementById('daily-photo-img').src = imgUrl;
                     document.getElementById('daily-photo-img').style.display = 'block';
                     
-                    // 구글 시트(공책)에는 사진 대신 이 '주소'만 짧게 메모해 둡니다.
                     currentData['daily-photo-url'] = imgUrl; 
                     triggerSave(); 
-                    toast.innerText = '✅ 사진 업로드 대성공!';
+                    toast.innerText = '✅ 예쁜 사진 업로드 대성공!';
                 } else {
-                    toast.innerText = '❌ 사진을 올리지 못했어요.';
+                    toast.innerText = '❌ 사진을 올리지 못했어요 ㅠㅠ';
                 }
             } catch(e) {
-                toast.innerText = '❌ 업로드 통신 에러';
+                toast.innerText = '❌ 사진 서버 통신 에러';
             }
             setTimeout(() => toast.style.display = 'none', 2000);
         }
@@ -254,7 +299,7 @@
 
         async function saveDataToServer() {
             const toast = document.getElementById('sync-toast');
-            toast.innerText = '☁️ 동기화 중...';
+            toast.innerText = '☁️ 구글 요정님이 저장 중...';
             toast.style.display = 'block';
 
             const dataToSave = { ...currentData };
@@ -262,15 +307,15 @@
 
             try {
                 await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataToSave) });
-                toast.innerText = '✅ 클라우드 저장 완료!';
+                toast.innerText = '💖 클라우드 안전하게 저장 완료!';
                 updateTodaySchedule(); 
-            } catch(e) { toast.innerText = '❌ 통신 에러'; }
+            } catch(e) { toast.innerText = '❌ 저장 에러 ㅠㅠ'; }
             setTimeout(() => toast.style.display = 'none', 2000);
         }
 
         async function loadDataFromServer() {
             const toast = document.getElementById('sync-toast');
-            toast.innerText = '☁️ 데이터 불러오는 중...';
+            toast.innerText = '☁️ 데이터를 불러오는 중...';
             toast.style.display = 'block';
 
             try {
@@ -291,7 +336,7 @@
                     document.getElementById('daily-photo-img').style.display = 'block';
                 }
                 
-                toast.innerText = '✅ 데이터 불러오기 완료!';
+                toast.innerText = '✅ 데이터 불러오기 성공!';
                 updateTodaySchedule(); 
             } catch(e) {
                 renderAcademyTable();
@@ -320,7 +365,7 @@
             const listEl = document.getElementById('today-schedule-list');
             listEl.innerHTML = '';
             if(schedules.length === 0) {
-                listEl.innerHTML = '<li style="color:#888; font-size:0.9em;">오늘은 등록된 일정이 없어요! 야호! 🎉</li>';
+                listEl.innerHTML = '<li style="color:#FF7B9C; font-size:1.1em; text-align:center;">오늘은 신나는 자유시간! 야호! 🎉</li>';
             } else {
                 schedules.forEach(item => { listEl.innerHTML += `<li><input type="checkbox"> <span>${item}</span></li>`; });
             }
