@@ -77,14 +77,15 @@
         .cal-day-name { font-size: 0.9em; color: #888; margin-bottom: 5px; }
         .cal-cell { padding: 10px 0; border-radius: 12px; font-size: 1.1em; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
         .cal-cell:hover { background: #FFF0F5; }
-        .cal-cell.has-diary { background: #FFD1DC; color: white; font-weight: bold; } /* 일기가 있는 날 */
-        .cal-cell.selected { border: 2px solid #FF7B9C; background: #FFF0F5; font-weight: bold; } /* 선택된 날 */
+        .cal-cell.has-diary { background: #FFD1DC; color: white; font-weight: bold; }
+        .cal-cell.selected { border: 2px solid #FF7B9C; background: #FFF0F5; font-weight: bold; }
         .cal-cell.empty { pointer-events: none; }
 
-        /* 사진첩 그리드 */
-        .album-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .album-item { width: 100%; aspect-ratio: 1; border-radius: 15px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 2px solid #FFE4E1; position: relative; }
-        .album-del-btn { position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.8); border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 1em; cursor: pointer; color: #FF6B6B; }
+        /* ★업그레이드: 전체화면 사진첩 리스트 디자인★ */
+        .album-list { display: flex; flex-direction: column; gap: 25px; margin-top: 15px; }
+        .album-card { background: white; border-radius: 20px; padding: 15px; border: 2px solid #FFE4E1; position: relative; box-shadow: 0 4px 15px rgba(255,182,193,0.15); }
+        .album-img { width: 100%; height: auto; border-radius: 15px; display: block; margin-bottom: 12px; }
+        .album-del-btn { position: absolute; top: 25px; right: 25px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.2em; cursor: pointer; color: #FF6B6B; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
         /* 하단 5칸 메뉴바 */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -5px 20px rgba(255,182,193,0.3); border-top-left-radius: 30px; border-top-right-radius: 30px; padding-bottom: env(safe-area-inset-bottom); z-index: 100;}
@@ -173,8 +174,7 @@
             <div class="cal-grid">
                 <div class="cal-day-name" style="color:#FF6B6B">일</div><div class="cal-day-name">월</div><div class="cal-day-name">화</div><div class="cal-day-name">수</div><div class="cal-day-name">목</div><div class="cal-day-name">금</div><div class="cal-day-name" style="color:#4A90E2">토</div>
             </div>
-            <div class="cal-grid" id="calendar-days">
-                </div>
+            <div class="cal-grid" id="calendar-days"></div>
 
             <div class="card-title" style="margin-top: 25px;" id="diary-date-title">📔 오늘의 일기</div>
             <textarea class="memo-input" id="diary-text" placeholder="선택한 날짜의 일기를 써보세요! 등록을 누르면 달력 색이 예쁘게 변해요." style="height: 150px;"></textarea>
@@ -185,12 +185,12 @@
     <div id="page-album" class="page">
         <div class="card">
             <div class="card-title">🖼️ 우리 가족 사진첩</div>
-            <p style="font-size: 0.9em; color: #888; margin-top:-5px;">찰칵! 예쁜 추억을 모아보세요.</p>
+            <p style="font-size: 0.9em; color: #888; margin-top:-5px;">찰칵! 예쁜 추억을 올리고 멘트도 적어봐요.</p>
             
             <input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="uploadAlbumPhoto()">
             <button class="btn btn-photo" onclick="document.getElementById('photo-upload').click()">📷 새 사진 올리기</button>
             
-            <div class="album-grid" id="album-grid">
+            <div class="album-list" id="album-list">
                 </div>
         </div>
     </div>
@@ -219,7 +219,6 @@
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
             
-            // 일기장 탭 누를 때 달력 다시 그려주기
             if(pageId === 'page-diary') renderCalendar();
         }
 
@@ -269,7 +268,7 @@
             comments.push({ author: author, text: text });
             
             currentData['home-comments'] = JSON.stringify(comments);
-            document.getElementById('c-text').value = ''; // 입력창 비우기
+            document.getElementById('c-text').value = ''; 
             renderComments();
             triggerSave();
         }
@@ -279,7 +278,7 @@
         // -------------------------
         let viewYear = new Date().getFullYear();
         let viewMonth = new Date().getMonth();
-        let selectedDateStr = getFormattedDate(new Date()); // 기본값: 오늘
+        let selectedDateStr = getFormattedDate(new Date()); 
 
         function getFormattedDate(d) {
             return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -300,32 +299,22 @@
             const calDays = document.getElementById('calendar-days');
             calDays.innerHTML = '';
 
-            // 빈 칸 채우기
-            for(let i = 0; i < firstDay; i++) {
-                calDays.innerHTML += `<div class="cal-cell empty"></div>`;
-            }
+            for(let i = 0; i < firstDay; i++) calDays.innerHTML += `<div class="cal-cell empty"></div>`;
 
-            // 날짜 채우기
             for(let i = 1; i <= lastDate; i++) {
                 const checkDate = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                
                 let classes = "cal-cell";
                 if(checkDate === selectedDateStr) classes += " selected";
-                
-                // 해당 날짜의 일기 데이터가 있으면 색상 변경 클래스(has-diary) 추가
                 if(currentData['diary-' + checkDate] && currentData['diary-' + checkDate].trim() !== "") {
                     classes += " has-diary";
                 }
-
                 calDays.innerHTML += `<div class="${classes}" onclick="selectDate('${checkDate}')">${i}</div>`;
             }
         }
 
         function selectDate(dateStr) {
             selectedDateStr = dateStr;
-            renderCalendar(); // 선택 표시 옮기기
-            
-            // 해당 날짜의 일기를 텍스트창에 불러오기
+            renderCalendar(); 
             const parts = dateStr.split('-');
             document.getElementById('diary-date-title').innerText = `📔 ${parts[1]}월 ${parts[2]}일의 일기`;
             document.getElementById('diary-text').value = currentData['diary-' + dateStr] || "";
@@ -334,31 +323,49 @@
         function saveDiary() {
             const text = document.getElementById('diary-text').value;
             currentData['diary-' + selectedDateStr] = text;
-            renderCalendar(); // 달력 색상 즉시 업데이트
+            renderCalendar(); 
             triggerSave();
             alert("일기가 예쁘게 등록되었어요! 💖");
         }
 
         // -------------------------
-        // 사진첩 - 다중 이미지 기능
+        // 사진첩 - 전체화면 + 멘트 달기
         // -------------------------
         function renderAlbum() {
-            const grid = document.getElementById('album-grid');
-            grid.innerHTML = '';
-            let photos = currentData['photo-album'] ? JSON.parse(currentData['photo-album']) : [];
+            const list = document.getElementById('album-list');
+            list.innerHTML = '';
+            
+            let photos = [];
+            try {
+                const parsed = currentData['photo-album'] ? JSON.parse(currentData['photo-album']) : [];
+                // 이전 버전에 올렸던 단순 사진(url) 데이터가 있다면 멘트 구조로 자동 변환
+                photos = parsed.map(item => typeof item === 'string' ? { url: item, caption: '' } : item);
+            } catch(e) {}
             
             if(photos.length === 0) {
-                grid.innerHTML = '<div style="grid-column: span 2; text-align:center; color:#CCC; padding: 20px;">아직 사진이 없어요!</div>';
+                list.innerHTML = '<div style="text-align:center; color:#CCC; padding: 20px; font-size:1.1em;">아직 사진이 없어요! 첫 사진을 올려주세요 📷</div>';
             } else {
-                photos.forEach((url, index) => {
-                    grid.innerHTML += `
-                        <div style="position:relative;">
-                            <img src="${url}" class="album-item">
+                photos.forEach((photo, index) => {
+                    list.innerHTML += `
+                        <div class="album-card">
                             <button class="album-del-btn" onclick="deletePhoto(${index})">✖</button>
+                            <img src="${photo.url}" class="album-img">
+                            <input type="text" class="memo-input" style="margin-bottom:0;" placeholder="사진에 대한 한 줄 멘트! (자동저장)" value="${photo.caption}" oninput="updatePhotoCaption(${index}, this.value)">
                         </div>
                     `;
                 });
             }
+        }
+
+        function updatePhotoCaption(index, value) {
+            let photos = JSON.parse(currentData['photo-album']);
+            if(typeof photos[index] === 'string') {
+                photos[index] = { url: photos[index], caption: value };
+            } else {
+                photos[index].caption = value;
+            }
+            currentData['photo-album'] = JSON.stringify(photos);
+            triggerSave(); // 멘트를 적자마자 1초 뒤 자동 저장!
         }
 
         async function uploadAlbumPhoto() {
@@ -378,23 +385,29 @@
                 const data = await res.json();
                 
                 if(data.success) {
-                    let photos = currentData['photo-album'] ? JSON.parse(currentData['photo-album']) : [];
-                    photos.unshift(data.data.url); // 새 사진을 맨 앞에 추가
+                    let photos = [];
+                    try {
+                        const parsed = currentData['photo-album'] ? JSON.parse(currentData['photo-album']) : [];
+                        photos = parsed.map(item => typeof item === 'string' ? { url: item, caption: '' } : item);
+                    } catch(e) {}
+
+                    // 새 사진은 리스트의 맨 위에 추가됩니다.
+                    photos.unshift({ url: data.data.url, caption: '' }); 
                     currentData['photo-album'] = JSON.stringify(photos);
                     
                     renderAlbum();
                     triggerSave(); 
-                    toast.innerText = '✅ 사진첩 등록 완료!';
+                    toast.innerText = '✅ 사진 등록 완료! 멘트를 적어보세요.';
                 } else {
                     toast.innerText = '❌ 업로드 실패 ㅠㅠ';
                 }
             } catch(e) { toast.innerText = '❌ 사진 서버 에러'; }
             setTimeout(() => toast.style.display = 'none', 2000);
-            fileInput.value = ''; // 다음 업로드를 위해 초기화
+            fileInput.value = ''; 
         }
 
         function deletePhoto(index) {
-            if(confirm("이 사진을 사진첩에서 지울까요?")) {
+            if(confirm("이 사진을 정말 지울까요?")) {
                 let photos = JSON.parse(currentData['photo-album']);
                 photos.splice(index, 1);
                 currentData['photo-album'] = JSON.stringify(photos);
@@ -404,7 +417,7 @@
         }
 
         // -------------------------
-        // 학원 시간표 및 데이터 동기화 로직
+        // 학원 시간표 및 데이터 동기화
         // -------------------------
         function renderAcademyTable() {
             const tbody = document.getElementById('academy-tbody');
@@ -432,6 +445,7 @@
         function triggerSave() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
+                // 일기장(diary-text)은 따로 [등록] 버튼을 눌러 저장하므로 제외하고 스캔합니다.
                 const inputs = document.querySelectorAll('input.cell-input, .memo-input:not(#diary-text)'); 
                 inputs.forEach(input => {
                     const key = input.id || input.dataset.id;
@@ -472,7 +486,7 @@
                 renderComments();
                 renderAlbum();
                 renderCalendar();
-                selectDate(selectedDateStr); // 오늘 날짜 일기 자동 세팅
+                selectDate(selectedDateStr); // 오늘 날짜 일기 세팅
                 
                 const inputs = document.querySelectorAll('input.cell-input, .memo-input:not(#diary-text)');
                 inputs.forEach(input => {
