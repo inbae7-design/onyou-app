@@ -158,21 +158,30 @@
         }
 
         let academyIds = [1, 2, 3]; 
+        let currentData = {}; // 💡 현재 화면의 글씨들을 백업해둘 특수 주머니
 
         function renderAcademyTable() {
             const tbody = document.getElementById('academy-tbody');
+            
+            // 💡 표를 지우기 딱 0.1초 전에! 현재 적혀있는 글씨들을 주머니(currentData)에 싹 담아둡니다.
+            const currentInputs = tbody.querySelectorAll('input.cell-input');
+            currentInputs.forEach(input => {
+                if(input.dataset.id) currentData[input.dataset.id] = input.value;
+            });
+
             tbody.innerHTML = '';
             academyIds.forEach(id => {
                 const tr = document.createElement('tr');
+                // 새로 표를 그릴 때, 주머니에 들어있던 글씨(value)가 있으면 그대로 다시 써줍니다!
                 tr.innerHTML = `
-                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-name-${id}" placeholder="이름"></td>
-                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-1"></td>
-                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-2"></td>
-                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-3"></td>
-                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-4"></td>
-                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-5"></td>
-                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-6"></td>
-                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-0"></td>
+                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-name-${id}" placeholder="이름" value="${currentData['a-name-'+id] || ''}"></td>
+                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-1" value="${currentData['a-'+id+'-1'] || ''}"></td>
+                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-2" value="${currentData['a-'+id+'-2'] || ''}"></td>
+                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-3" value="${currentData['a-'+id+'-3'] || ''}"></td>
+                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-4" value="${currentData['a-'+id+'-4'] || ''}"></td>
+                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-5" value="${currentData['a-'+id+'-5'] || ''}"></td>
+                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-6" value="${currentData['a-'+id+'-6'] || ''}"></td>
+                    <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-0" value="${currentData['a-'+id+'-0'] || ''}"></td>
                     <td><button class="btn-delete" onclick="removeAcademy(${id})">❌</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -183,41 +192,43 @@
             const newId = academyIds.length > 0 ? Math.max(...academyIds) + 1 : 1;
             academyIds.push(newId);
             renderAcademyTable();
-            triggerSave(); // 추가하자마자 서버에 알림
+            triggerSave(); 
         }
 
         function removeAcademy(id) {
             if(confirm("이 학원 일정을 지우고 서버에 저장할까요?")) {
                 academyIds = academyIds.filter(item => item !== id);
+                
+                // 💡 학원을 지울 때 주머니(currentData)에서도 데이터를 깔끔하게 버려줍니다.
+                delete currentData[`a-name-${id}`];
+                for(let i=0; i<=6; i++) delete currentData[`a-${id}-${i}`];
+                
                 renderAcademyTable();
-                triggerSave(); // 삭제하자마자 서버에 알림
+                triggerSave(); 
             }
         }
 
-        // --- ☁️ 클라우드 동기화 핵심 로직 ---
         let saveTimeout;
-        // 타자를 칠 때마다 서버에 무리가 가지 않도록, 입력을 멈추고 1초 뒤에 한 번만 묶어서 전송합니다.
         function triggerSave() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
+                // 저장 버튼이 눌리기 전에 화면의 최신 값을 주머니에 한 번 더 담습니다.
+                const inputs = document.querySelectorAll('input.cell-input, .memo-input');
+                inputs.forEach(input => {
+                    const key = input.id || input.dataset.id;
+                    if(key) currentData[key] = input.value;
+                });
                 saveDataToServer();
             }, 1000); 
         }
 
-        // 구글 시트로 데이터 보내기 (Save)
         async function saveDataToServer() {
             const toast = document.getElementById('sync-toast');
             toast.innerText = '☁️ 동기화 중...';
             toast.style.display = 'block';
 
-            const dataToSave = {};
+            const dataToSave = { ...currentData }; // 백업 주머니의 데이터를 통째로 복사
             dataToSave['academyIds'] = JSON.stringify(academyIds);
-            
-            const inputs = document.querySelectorAll('input.cell-input, .memo-input');
-            inputs.forEach(input => {
-                const key = input.id || input.dataset.id;
-                if(key) dataToSave[key] = input.value;
-            });
 
             try {
                 await fetch('/api/save', {
@@ -226,14 +237,13 @@
                     body: JSON.stringify(dataToSave)
                 });
                 toast.innerText = '✅ 클라우드 저장 완료!';
-                updateTodaySchedule(); // 저장 후 내 스케줄 업데이트
+                updateTodaySchedule(); 
             } catch(e) {
                 toast.innerText = '❌ 통신 에러';
             }
             setTimeout(() => toast.style.display = 'none', 2000);
         }
 
-        // 구글 시트에서 데이터 받아오기 (Load)
         async function loadDataFromServer() {
             const toast = document.getElementById('sync-toast');
             toast.innerText = '☁️ 데이터 불러오는 중...';
@@ -243,13 +253,15 @@
                 const res = await fetch('/api/load');
                 const data = await res.json();
                 
-                // 학원 개수 정보가 있다면 먼저 적용해서 표를 늘려놓기
+                currentData = data; // 💡 구글에서 받아온 데이터를 주머니에 쏙!
+                
                 if(data['academyIds']) {
                     academyIds = JSON.parse(data['academyIds']);
-                    renderAcademyTable();
                 }
                 
-                // 화면의 빈칸들을 데이터로 쏙쏙 채워넣기
+                renderAcademyTable(); // 주머니 데이터를 바탕으로 학원 표 먼저 그리기
+                
+                // 학교 표와 메모장 채우기
                 const inputs = document.querySelectorAll('input.cell-input, .memo-input');
                 inputs.forEach(input => {
                     const key = input.id || input.dataset.id;
@@ -259,7 +271,7 @@
                 });
                 
                 toast.innerText = '✅ 데이터 불러오기 완료!';
-                updateTodaySchedule(); // 불러온 뒤 내 스케줄 업데이트
+                updateTodaySchedule(); 
             } catch(e) {
                 toast.innerText = '⚠️ 새 데이터 공간을 만들었어요!';
                 renderAcademyTable();
@@ -268,7 +280,6 @@
             setTimeout(() => toast.style.display = 'none', 2000);
         }
 
-        // 오늘의 스케줄 추출
         function updateTodaySchedule() {
             const dayOfWeek = new Date().getDay(); 
             let schedules = [];
@@ -303,7 +314,6 @@
 
         window.onload = function() {
             fetchWeather();
-            // 페이지가 열리면 로컬 메모리가 아닌 '구글 서버'에서 데이터를 가져옵니다.
             loadDataFromServer(); 
         };
     </script>
