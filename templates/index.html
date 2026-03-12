@@ -10,45 +10,36 @@
         .header h1 { margin: 0; color: #FF6B6B; font-size: 1.6em; }
         .header p { color: #777; font-size: 0.9em; margin-top: 8px; font-weight: bold; }
         
-        /* 알림창(Toast) 디자인 */
-        #sync-toast {
-            position: fixed; top: 15px; right: 15px; background: #82C8A0; color: white;
-            padding: 8px 15px; border-radius: 20px; font-size: 0.85em; font-weight: bold;
-            display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1000;
-        }
-
+        #sync-toast { position: fixed; top: 15px; right: 15px; background: #82C8A0; color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.85em; font-weight: bold; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 1000; }
         .weather-scroll-container { display: flex; overflow-x: auto; gap: 10px; padding: 10px 5px; margin-top: 15px; }
         .weather-scroll-container::-webkit-scrollbar { display: none; } 
         .weather-item { background: #F8F9FA; min-width: 60px; padding: 12px 10px; border-radius: 15px; text-align: center; border: 1px solid #EEE; flex-shrink: 0; }
         .w-day { font-size: 0.8em; font-weight: bold; color: #555; }
         .w-icon { font-size: 1.8em; margin: 5px 0; }
         .w-temp { font-size: 0.75em; font-weight: bold; }
-
         .page { display: none; padding: 0 15px; } 
         .page.active { display: block; }
         .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .card-title { font-size: 1.1em; font-weight: bold; margin-bottom: 15px; color: #444; border-bottom: 2px solid #FFEDED; padding-bottom: 10px; }
-
         .todo-list { list-style: none; padding: 0; margin: 0; }
         .todo-list li { padding: 12px 0; border-bottom: 1px dashed #EEE; display: flex; align-items: center; }
         .todo-list li:last-child { border-bottom: none; }
         .todo-list input[type="checkbox"] { margin-right: 10px; width: 18px; height: 18px; accent-color: #FF6B6B; }
-
         .memo-input { width: 100%; padding: 12px; border: 1px solid #DDD; border-radius: 10px; box-sizing: border-box; font-size: 0.9em; margin-bottom: 10px; font-family: inherit; }
         textarea.memo-input { resize: none; height: 80px; }
         .btn { background-color: #FF8E8B; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 2px 5px rgba(255, 142, 139, 0.4);}
         .btn-add { background-color: #82C8A0; margin-top: 10px; box-shadow: 0 2px 5px rgba(130, 200, 160, 0.4); }
-
+        /* 사진 버튼 디자인 */
+        .btn-photo { background-color: #4A90E2; box-shadow: 0 2px 5px rgba(74, 144, 226, 0.4); margin-bottom: 15px; }
+        
         .table-container { overflow-x: auto; margin-bottom: 15px; }
         table { width: 100%; border-collapse: collapse; min-width: 350px; font-size: 0.85em; text-align: center; }
         th { background-color: #FFEDED; padding: 10px 3px; color: #555; white-space: nowrap; }
         td { border: 1px solid #EEE; padding: 5px 2px; }
         input.cell-input { width: 95%; border: none; text-align: center; background: transparent; outline: none; font-size: 1em; }
-        
         #school-table th { background-color: #E3F2FD; }
         #academy-table th { background-color: #FFF3E0; }
         .btn-delete { background: none; border: none; color: #FF6B6B; font-size: 1.2em; cursor: pointer; padding: 0; }
-
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); border-top-left-radius: 15px; border-top-right-radius: 15px; }
         .nav-item { text-align: center; color: #CCC; font-size: 0.8em; font-weight: bold; padding: 5px 15px; flex-grow: 1; cursor: pointer; }
         .nav-item.active { color: #FF6B6B; }
@@ -75,15 +66,21 @@
             </ul>
         </div>
         <div class="card">
-            <div class="card-title">📝 오늘의 한 줄 메모</div>
-            <input type="text" class="memo-input" id="daily-memo" placeholder="오늘 있었던 재밌는 일을 적어봐요!" oninput="triggerSave()">
+            <div class="card-title">📸 온유의 일기장</div>
+            
+            <input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="uploadPhoto()">
+            
+            <button class="btn btn-photo" onclick="document.getElementById('photo-upload').click()">📷 오늘의 사진 올리기</button>
+            
+            <img id="daily-photo-img" style="width:100%; border-radius:10px; margin-bottom:15px; display:none; border: 1px solid #EEE;">
+            
+            <input type="text" class="memo-input" id="daily-memo" placeholder="사진과 함께 오늘 있었던 재밌는 일을 적어봐요!" oninput="triggerSave()">
         </div>
     </div>
 
     <div id="page-school" class="page">
         <div class="card">
             <div class="card-title">🏫 학교 시간표 (월~금)</div>
-            <p style="font-size: 0.8em; color: #888; margin-top:-5px;">* 빈칸을 터치해서 과목을 적어주세요.</p>
             <div class="table-container">
                 <table id="school-table">
                     <tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr>
@@ -103,7 +100,6 @@
     <div id="page-academy" class="page">
         <div class="card">
             <div class="card-title">🎒 학원 시간표 (월~일)</div>
-            <p style="font-size: 0.8em; color: #888; margin-top:-5px;">* 표 안에 요일별 가는 시간을 적어주세요! (예: 14:00)</p>
             <div class="table-container">
                 <table id="academy-table">
                     <thead>
@@ -136,21 +132,17 @@
                 const url = 'https://api.open-meteo.com/v1/forecast?latitude=37.00&longitude=127.27&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul';
                 const response = await fetch(url);
                 const data = await response.json();
-                
                 const days = ['일', '월', '화', '수', '목', '금', '토'];
                 let html = '';
                 for(let i=0; i<7; i++) {
                     const dateObj = new Date(data.daily.time[i]);
                     let dayStr = days[dateObj.getDay()];
                     if(i === 0) dayStr = '오늘'; if(i === 1) dayStr = '내일';
-
                     const maxT = Math.round(data.daily.temperature_2m_max[i]);
                     const minT = Math.round(data.daily.temperature_2m_min[i]);
                     const code = data.daily.weathercode[i];
-                    
                     let emoji = '🌤️';
                     if(code === 0) emoji = '☀️'; else if(code <= 3) emoji = '☁️'; else if(code <= 48) emoji = '🌫️'; else if(code <= 67) emoji = '🌧️'; else if(code <= 77) emoji = '❄️'; else emoji = '⛈️';
-
                     html += `<div class="weather-item"><div class="w-day">${dayStr}</div><div class="w-icon">${emoji}</div><div class="w-temp"><span style="color:#4A90E2">${minT}°</span>/<span style="color:#E02020">${maxT}°</span></div></div>`;
                 }
                 document.getElementById('weather-scroll').innerHTML = html;
@@ -158,21 +150,15 @@
         }
 
         let academyIds = [1, 2, 3]; 
-        let currentData = {}; // 💡 현재 화면의 글씨들을 백업해둘 특수 주머니
+        let currentData = {}; 
 
         function renderAcademyTable() {
             const tbody = document.getElementById('academy-tbody');
-            
-            // 💡 표를 지우기 딱 0.1초 전에! 현재 적혀있는 글씨들을 주머니(currentData)에 싹 담아둡니다.
             const currentInputs = tbody.querySelectorAll('input.cell-input');
-            currentInputs.forEach(input => {
-                if(input.dataset.id) currentData[input.dataset.id] = input.value;
-            });
-
+            currentInputs.forEach(input => { if(input.dataset.id) currentData[input.dataset.id] = input.value; });
             tbody.innerHTML = '';
             academyIds.forEach(id => {
                 const tr = document.createElement('tr');
-                // 새로 표를 그릴 때, 주머니에 들어있던 글씨(value)가 있으면 그대로 다시 써줍니다!
                 tr.innerHTML = `
                     <td><input class="cell-input" oninput="triggerSave()" data-id="a-name-${id}" placeholder="이름" value="${currentData['a-name-'+id] || ''}"></td>
                     <td><input class="cell-input" oninput="triggerSave()" data-id="a-${id}-1" value="${currentData['a-'+id+'-1'] || ''}"></td>
@@ -196,23 +182,55 @@
         }
 
         function removeAcademy(id) {
-            if(confirm("이 학원 일정을 지우고 서버에 저장할까요?")) {
+            if(confirm("이 학원 일정을 지울까요?")) {
                 academyIds = academyIds.filter(item => item !== id);
-                
-                // 💡 학원을 지울 때 주머니(currentData)에서도 데이터를 깔끔하게 버려줍니다.
                 delete currentData[`a-name-${id}`];
                 for(let i=0; i<=6; i++) delete currentData[`a-${id}-${i}`];
-                
                 renderAcademyTable();
                 triggerSave(); 
             }
+        }
+
+        // --- 📸 사진 업로드 전송 ---
+        async function uploadPhoto() {
+            const fileInput = document.getElementById('photo-upload');
+            const file = fileInput.files[0];
+            if(!file) return;
+
+            const toast = document.getElementById('sync-toast');
+            toast.innerText = '📷 드라이브에 사진 올리는 중...';
+            toast.style.display = 'block';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/api/upload_image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if(data.url) {
+                    // 구글 드라이브 사진 링크를 받아서 화면에 띄우고 주머니에 저장
+                    document.getElementById('daily-photo-img').src = data.url;
+                    document.getElementById('daily-photo-img').style.display = 'block';
+                    currentData['daily-photo-url'] = data.url; // 시트에 저장하기 위해 주머니에 넣음
+                    triggerSave(); // 시트에도 동기화
+                    toast.innerText = '✅ 사진 업로드 성공!';
+                } else {
+                    toast.innerText = '❌ 사진을 올리지 못했어요.';
+                }
+            } catch(e) {
+                toast.innerText = '❌ 업로드 통신 에러';
+            }
+            setTimeout(() => toast.style.display = 'none', 2000);
         }
 
         let saveTimeout;
         function triggerSave() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
-                // 저장 버튼이 눌리기 전에 화면의 최신 값을 주머니에 한 번 더 담습니다.
                 const inputs = document.querySelectorAll('input.cell-input, .memo-input');
                 inputs.forEach(input => {
                     const key = input.id || input.dataset.id;
@@ -227,20 +245,14 @@
             toast.innerText = '☁️ 동기화 중...';
             toast.style.display = 'block';
 
-            const dataToSave = { ...currentData }; // 백업 주머니의 데이터를 통째로 복사
+            const dataToSave = { ...currentData };
             dataToSave['academyIds'] = JSON.stringify(academyIds);
 
             try {
-                await fetch('/api/save', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dataToSave)
-                });
+                await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataToSave) });
                 toast.innerText = '✅ 클라우드 저장 완료!';
                 updateTodaySchedule(); 
-            } catch(e) {
-                toast.innerText = '❌ 통신 에러';
-            }
+            } catch(e) { toast.innerText = '❌ 통신 에러'; }
             setTimeout(() => toast.style.display = 'none', 2000);
         }
 
@@ -252,28 +264,25 @@
             try {
                 const res = await fetch('/api/load');
                 const data = await res.json();
+                currentData = data; 
+                if(data['academyIds']) academyIds = JSON.parse(data['academyIds']);
+                renderAcademyTable(); 
                 
-                currentData = data; // 💡 구글에서 받아온 데이터를 주머니에 쏙!
-                
-                if(data['academyIds']) {
-                    academyIds = JSON.parse(data['academyIds']);
-                }
-                
-                renderAcademyTable(); // 주머니 데이터를 바탕으로 학원 표 먼저 그리기
-                
-                // 학교 표와 메모장 채우기
                 const inputs = document.querySelectorAll('input.cell-input, .memo-input');
                 inputs.forEach(input => {
                     const key = input.id || input.dataset.id;
-                    if(key && data[key] !== undefined) {
-                        input.value = data[key];
-                    }
+                    if(key && data[key] !== undefined) input.value = data[key];
                 });
+
+                // 📸 저장된 사진이 있으면 불러오기
+                if(data['daily-photo-url']) {
+                    document.getElementById('daily-photo-img').src = data['daily-photo-url'];
+                    document.getElementById('daily-photo-img').style.display = 'block';
+                }
                 
                 toast.innerText = '✅ 데이터 불러오기 완료!';
                 updateTodaySchedule(); 
             } catch(e) {
-                toast.innerText = '⚠️ 새 데이터 공간을 만들었어요!';
                 renderAcademyTable();
                 updateTodaySchedule();
             }
@@ -283,7 +292,6 @@
         function updateTodaySchedule() {
             const dayOfWeek = new Date().getDay(); 
             let schedules = [];
-
             if(dayOfWeek >= 1 && dayOfWeek <= 5) {
                 for(let period = 1; period <= 6; period++) {
                     const inputEl = document.querySelector(`input[data-id="s-${period}-${dayOfWeek}"]`);
@@ -291,7 +299,6 @@
                     if(subject && subject.trim() !== "") schedules.push(`[${period}교시] ${subject}`);
                 }
             }
-
             academyIds.forEach(id => {
                 const nameEl = document.querySelector(`input[data-id="a-name-${id}"]`);
                 const timeEl = document.querySelector(`input[data-id="a-${id}-${dayOfWeek}"]`);
@@ -299,16 +306,12 @@
                     schedules.push(`[${nameEl.value}] ${timeEl.value}`);
                 }
             });
-
             const listEl = document.getElementById('today-schedule-list');
             listEl.innerHTML = '';
-            
             if(schedules.length === 0) {
                 listEl.innerHTML = '<li style="color:#888; font-size:0.9em;">오늘은 등록된 일정이 없어요! 야호! 🎉</li>';
             } else {
-                schedules.forEach(item => {
-                    listEl.innerHTML += `<li><input type="checkbox"> <span>${item}</span></li>`;
-                });
+                schedules.forEach(item => { listEl.innerHTML += `<li><input type="checkbox"> <span>${item}</span></li>`; });
             }
         }
 
