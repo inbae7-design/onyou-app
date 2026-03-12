@@ -10,7 +10,7 @@ import io
 app = Flask(__name__)
 
 # ★여기에 아까 복사해둔 구글 드라이브 '폴더 ID'를 따옴표 안에 넣어주세요!★
-FOLDER_ID = "11uYn0zVbCyr_IecC6MuozB_kk7TSPpId?hl=ko"
+FOLDER_ID = "11uYn0zVbCyr_IecC6MuozB_kk7TSPpId"
 
 def get_credentials():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -82,3 +82,4 @@ def upload_image():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
+
