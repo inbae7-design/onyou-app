@@ -33,11 +33,11 @@
         .card { background: white; border-radius: 25px; padding: 20px 15px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(255,182,193,0.15); border: 3px solid #FFF0F5; }
         .card-title { font-size: 1.3em; margin-bottom: 15px; color: #FF7B9C; border-bottom: 2px dashed #FFD1DC; padding-bottom: 10px; }
 
-        .todo-list { list-style: none; padding: 0; margin: 0; }
+        .todo-list { list-style: none; padding: 0; margin: 0 0 15px 0; }
         .todo-list li { padding: 12px 0; border-bottom: 2px dotted #FFE4E1; display: flex; align-items: center; font-size: 1.1em; }
         .todo-list li:last-child { border-bottom: none; }
-        .todo-list input[type="checkbox"] { margin-right: 12px; width: 22px; height: 22px; accent-color: #FF7B9C; }
-        /* ★추가됨: 체크 완료된 스케줄 디자인 (밑줄 쫙!)★ */
+        .todo-list input[type="checkbox"] { margin-right: 12px; width: 22px; height: 22px; accent-color: #FF7B9C; flex-shrink: 0; }
+        .todo-list span { flex-grow: 1; word-break: break-all; }
         .todo-list span.done { text-decoration: line-through; color: #CCC; transition: all 0.3s ease; }
 
         .memo-input { width: 100%; padding: 12px; border: 2px solid #FFE4E1; border-radius: 12px; box-sizing: border-box; font-size: 1em; margin-bottom: 10px; outline: none; transition: border 0.3s; }
@@ -91,6 +91,9 @@
         .nav-item.active { color: #FF7B9C; }
         .nav-icon { font-size: 1.6em; display: block; margin-bottom: 3px; transition: transform 0.3s; }
         .nav-item.active .nav-icon { transform: translateY(-3px) scale(1.1); }
+
+        /* 오늘 일정 추가 입력창 래퍼 */
+        .add-schedule-wrapper { display: flex; gap: 5px; align-items: center; border-top: 2px dashed #FFF0F5; padding-top: 15px; }
     </style>
 </head>
 <body>
@@ -109,9 +112,15 @@
 
         <div class="card">
             <div class="card-title">✅ 오늘의 스케줄!</div>
+            
             <ul class="todo-list" id="today-schedule-list">
                 <li style="color:#888;">시간표를 불러오는 중입니다...</li>
             </ul>
+
+            <div class="add-schedule-wrapper">
+                <input type="text" id="new-custom-schedule" class="memo-input" style="margin-bottom:0;" placeholder="오늘 추가할 일정이 있나요?">
+                <button class="btn btn-add" style="margin-top:0; width: 65px; padding: 12px 5px; font-size: 1em;" onclick="addCustomSchedule()">추가</button>
+            </div>
         </div>
 
         <div class="card">
@@ -456,18 +465,50 @@
             }
         }
 
-        // --- ★추가됨: 스케줄 체크박스를 서버에 저장하는 함수★ ---
+        // --- ★깜짝 스케줄 추가 로직★ ---
+        function addCustomSchedule() {
+            const input = document.getElementById('new-custom-schedule');
+            const val = input.value.trim();
+            if(!val) return;
+
+            const today = new Date();
+            const todayStr = getFormattedDate(today);
+            const key = `custom-${todayStr}`; // 오늘 날짜에 해당하는 깜짝 일정 목록
+
+            let customList = currentData[key] ? JSON.parse(currentData[key]) : [];
+            customList.push(val);
+            currentData[key] = JSON.stringify(customList);
+            
+            input.value = ''; // 입력창 비우기
+            updateTodaySchedule();
+            triggerSave();
+        }
+
+        // 깜짝 스케줄 삭제 로직
+        function deleteCustomSchedule(index) {
+            const today = new Date();
+            const todayStr = getFormattedDate(today);
+            const key = `custom-${todayStr}`;
+            
+            let customList = JSON.parse(currentData[key]);
+            customList.splice(index, 1);
+            currentData[key] = JSON.stringify(customList);
+            
+            updateTodaySchedule();
+            triggerSave();
+        }
+
         function saveCheckbox(chkKey, isChecked) {
             currentData[chkKey] = isChecked;
-            updateTodaySchedule(); // 화면 즉시 업데이트 (밑줄 긋기)
-            triggerSave();         // 서버에 저장
+            updateTodaySchedule(); 
+            triggerSave();         
         }
 
         let saveTimeout;
         function triggerSave() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
-                const inputs = document.querySelectorAll('input.cell-input, .memo-input:not(#diary-text)'); 
+                const inputs = document.querySelectorAll('input.cell-input, .memo-input:not(#diary-text):not(#new-custom-schedule)'); 
                 inputs.forEach(input => {
                     const key = input.id || input.dataset.id;
                     if(key) currentData[key] = input.value;
@@ -508,14 +549,14 @@
                 renderCalendar();
                 selectDate(selectedDateStr);
                 
-                const inputs = document.querySelectorAll('input.cell-input, .memo-input:not(#diary-text)');
+                const inputs = document.querySelectorAll('input.cell-input, .memo-input:not(#diary-text):not(#new-custom-schedule)');
                 inputs.forEach(input => {
                     const key = input.id || input.dataset.id;
                     if(key && data[key] !== undefined) input.value = data[key];
                 });
 
                 toast.innerText = '✅ 데이터 불러오기 성공!';
-                updateTodaySchedule(); // 여기서 스케줄과 체크박스 상태를 그립니다.
+                updateTodaySchedule(); 
             } catch(e) {
                 renderAcademyTable();
                 updateTodaySchedule();
@@ -523,39 +564,42 @@
             setTimeout(() => toast.style.display = 'none', 2000);
         }
 
-        // --- ★업그레이드됨: 오늘 날짜에 맞춰 체크박스 상태를 불러오고 그리는 로직★ ---
         function updateTodaySchedule() {
             const today = new Date();
             const dayOfWeek = today.getDay(); 
-            const todayStr = getFormattedDate(today); // 오늘 날짜 텍스트 (예: 2026-03-13)
+            const todayStr = getFormattedDate(today); 
 
-            let schedules = [];
+            let autoSchedules = []; // 기본 반복 일정 (학교, 학원)
+            
             if(dayOfWeek >= 1 && dayOfWeek <= 5) {
                 for(let period = 1; period <= 6; period++) {
                     const inputEl = document.querySelector(`input[data-id="s-${period}-${dayOfWeek}"]`);
                     const subject = inputEl ? inputEl.value : "";
-                    if(subject && subject.trim() !== "") schedules.push(`[${period}교시] ${subject}`);
+                    if(subject && subject.trim() !== "") autoSchedules.push(`[${period}교시] ${subject}`);
                 }
             }
             academyIds.forEach(id => {
                 const nameEl = document.querySelector(`input[data-id="a-name-${id}"]`);
                 const timeEl = document.querySelector(`input[data-id="a-${id}-${dayOfWeek}"]`);
                 if(nameEl && timeEl && nameEl.value.trim() !== "" && timeEl.value.trim() !== "") {
-                    schedules.push(`[${nameEl.value}] ${timeEl.value}`);
+                    autoSchedules.push(`[${nameEl.value}] ${timeEl.value}`);
                 }
             });
 
+            // 당일 추가된 깜짝 일정 불러오기
+            const customKey = `custom-${todayStr}`;
+            let customSchedules = currentData[customKey] ? JSON.parse(currentData[customKey]) : [];
+
             const listEl = document.getElementById('today-schedule-list');
             listEl.innerHTML = '';
-            if(schedules.length === 0) {
+            
+            if(autoSchedules.length === 0 && customSchedules.length === 0) {
                 listEl.innerHTML = '<li style="color:#FF7B9C; font-size:1em; text-align:center;">오늘은 신나는 자유시간! 야호! 🎉</li>';
             } else {
-                schedules.forEach((item, index) => { 
-                    // 오늘 날짜를 기준으로 체크박스 고유 키 생성
-                    const chkKey = `chk-${todayStr}-${index}`;
-                    // 서버에 저장된 체크 상태 확인
+                // 1. 기본 반복 일정 그리기
+                autoSchedules.forEach((item, index) => { 
+                    const chkKey = `chk-${todayStr}-auto-${index}`;
                     const isChecked = (currentData[chkKey] === true || currentData[chkKey] === "true");
-                    
                     const checkedAttr = isChecked ? "checked" : "";
                     const spanClass = isChecked ? "done" : "";
 
@@ -563,6 +607,22 @@
                         <li>
                             <input type="checkbox" onchange="saveCheckbox('${chkKey}', this.checked)" ${checkedAttr}> 
                             <span class="${spanClass}">${item}</span>
+                        </li>
+                    `; 
+                });
+
+                // 2. 당일 깜짝 일정 그리기 (특별한 배지 [추가] 와 삭제 버튼 포함)
+                customSchedules.forEach((item, index) => {
+                    const chkKey = `chk-${todayStr}-custom-${index}`;
+                    const isChecked = (currentData[chkKey] === true || currentData[chkKey] === "true");
+                    const checkedAttr = isChecked ? "checked" : "";
+                    const spanClass = isChecked ? "done" : "";
+
+                    listEl.innerHTML += `
+                        <li>
+                            <input type="checkbox" onchange="saveCheckbox('${chkKey}', this.checked)" ${checkedAttr}> 
+                            <span class="${spanClass}">✨ ${item}</span>
+                            <button class="btn-delete" style="font-size: 1.2em; padding-left: 10px;" onclick="deleteCustomSchedule(${index})">✖</button>
                         </li>
                     `; 
                 });
